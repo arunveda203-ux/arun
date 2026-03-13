@@ -44,30 +44,64 @@ function calculate() {
     (dieWidthIn <= DIGITAL_MAX_WIDTH_IN && dieHeightIn <= DIGITAL_MAX_HEIGHT_IN) ||
     (dieHeightIn <= DIGITAL_MAX_WIDTH_IN && dieWidthIn <= DIGITAL_MAX_HEIGHT_IN);
 
-  const mode = quantity <= 300 && fitsDigital ? 'Digital Print + Digital Cut/Paste' : 'Offset Print';
-  const printRate = mode.startsWith('Digital') ? printRateDigital : printRateOffset;
+  const isDigital = quantity <= 300 && fitsDigital;
+  const mode = isDigital ? 'Digital Print + Digital Cut/Paste' : 'Offset Print';
+  const printRate = isDigital ? printRateDigital : printRateOffset;
 
-  const processRatePerBox = boardRate + printRate + diecutRate + creasingRate + laminationRate + pastingRate + windowCutRate;
+  const sectionRates = [
+    { label: 'Board', rate: boardRate },
+    { label: `Print (${isDigital ? 'Digital' : 'Offset'})`, rate: printRate },
+    { label: 'Diecut', rate: diecutRate },
+    { label: 'Creasing', rate: creasingRate },
+    { label: 'Lamination', rate: laminationRate },
+    { label: 'Pasting', rate: pastingRate },
+    { label: 'Window Cutting', rate: windowCutRate },
+  ];
+
+  const processRatePerBox = sectionRates.reduce((sum, section) => sum + section.rate, 0);
   const qtyWithWastage = Math.ceil(quantity * (1 + (wastagePercent / 100)));
+  const wastageUnits = qtyWithWastage - quantity;
 
-  const baseTotal = qtyWithWastage * processRatePerBox;
-  const finalTotal = baseTotal * (1 + (profitPercent / 100));
+  const sectionTotals = sectionRates.map((section) => ({
+    ...section,
+    total: section.rate * qtyWithWastage,
+  }));
+
+  const baseTotal = sectionTotals.reduce((sum, section) => sum + section.total, 0);
+  const profitValue = baseTotal * (profitPercent / 100);
+  const finalTotal = baseTotal + profitValue;
   const unitPrice = finalTotal / quantity;
 
   return {
     mode,
     quantity,
     qtyWithWastage,
+    wastageUnits,
     dieWidthCm,
     dieHeightCm,
     dieWidthIn,
     dieHeightIn,
     fitsDigital,
     processRatePerBox,
+    sectionTotals,
     baseTotal,
+    profitValue,
     finalTotal,
     unitPrice,
+    wastagePercent,
+    profitPercent,
   };
+}
+
+function renderSectionRows(sectionTotals) {
+  return sectionTotals
+    .map(
+      (section) => `
+      <div>${section.label} (₹/box)</div><div>${money(section.rate)}</div>
+      <div>${section.label} Total</div><div>${money(section.total)}</div>
+    `,
+    )
+    .join('');
 }
 
 function render(result) {
@@ -90,9 +124,14 @@ function render(result) {
       <div>Die Size (cm)</div><div>${result.dieWidthCm.toFixed(2)} × ${result.dieHeightCm.toFixed(2)}</div>
       <div>Die Size (in)</div><div>${result.dieWidthIn.toFixed(2)} × ${result.dieHeightIn.toFixed(2)}</div>
       <div>Order Quantity</div><div>${result.quantity}</div>
+      <div>Wastage %</div><div>${result.wastagePercent.toFixed(2)}%</div>
+      <div>Wastage Units</div><div>${result.wastageUnits}</div>
       <div>Quantity with Wastage</div><div>${result.qtyWithWastage}</div>
-      <div>Cost per Box (before wastage/profit)</div><div>${money(result.processRatePerBox)}</div>
-      <div>Base Total</div><div>${money(result.baseTotal)}</div>
+      ${renderSectionRows(result.sectionTotals)}
+      <div>Cost per Box (all sections)</div><div>${money(result.processRatePerBox)}</div>
+      <div>Base Total (all section totals)</div><div>${money(result.baseTotal)}</div>
+      <div>Profit %</div><div>${result.profitPercent.toFixed(2)}%</div>
+      <div>Profit Value</div><div>${money(result.profitValue)}</div>
       <div>Final Total Quote</div><div><strong>${money(result.finalTotal)}</strong></div>
       <div>Final Unit Price</div><div><strong>${money(result.unitPrice)}</strong></div>
     </div>
