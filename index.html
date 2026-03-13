@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mono Carton Box Pricing Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Mono Carton Box Pricing Calculator</h1>
+      <p class="subtext">
+        Enter box dimensions (<strong>W × B × H</strong> in cm), process rates, and quantity.
+        The calculator automatically uses <strong>Digital</strong> mode for 1–300 quantities
+        (with maximum printable sheet of 12.5 × 18.5 in) and <strong>Offset</strong> for larger quantities.
+      </p>
+
+      <section class="grid">
+        <div class="card">
+          <h2>Box Dimensions</h2>
+          <div class="field-row">
+            <label for="widthCm">Width (W) cm</label>
+            <input id="widthCm" type="number" min="0" step="0.1" value="6" />
+          </div>
+          <div class="field-row">
+            <label for="breadthCm">Breadth (B) cm</label>
+            <input id="breadthCm" type="number" min="0" step="0.1" value="4" />
+          </div>
+          <div class="field-row">
+            <label for="heightCm">Height (H) cm</label>
+            <input id="heightCm" type="number" min="0" step="0.1" value="10" />
+          </div>
+          <div class="field-row">
+            <label for="glueFlapCm">Glue flap cm</label>
+            <input id="glueFlapCm" type="number" min="0" step="0.1" value="1.5" />
+          </div>
+          <div class="field-row">
+            <label for="topBottomFlapFactor">Top+Bottom flap factor (×B)</label>
+            <input id="topBottomFlapFactor" type="number" min="0" step="0.1" value="1" />
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Production Variables (₹ per sheet)</h2>
+          <div class="field-row"><label for="boardRate">Board</label><input id="boardRate" type="number" min="0" step="0.01" value="3.5" /></div>
+          <div class="field-row"><label for="printRateDigital">Print (Digital)</label><input id="printRateDigital" type="number" min="0" step="0.01" value="2.2" /></div>
+          <div class="field-row"><label for="printRateOffset">Print (Offset)</label><input id="printRateOffset" type="number" min="0" step="0.01" value="0.95" /></div>
+          <div class="field-row"><label for="diecutRate">Diecut</label><input id="diecutRate" type="number" min="0" step="0.01" value="0.8" /></div>
+          <div class="field-row"><label for="creasingRate">Creasing</label><input id="creasingRate" type="number" min="0" step="0.01" value="0.4" /></div>
+          <div class="field-row"><label for="laminationRate">Lamination</label><input id="laminationRate" type="number" min="0" step="0.01" value="0.6" /></div>
+          <div class="field-row"><label for="pastingRate">Pasting</label><input id="pastingRate" type="number" min="0" step="0.01" value="0.75" /></div>
+          <div class="field-row"><label for="windowCutRate">Window cutting</label><input id="windowCutRate" type="number" min="0" step="0.01" value="0" /></div>
+          <div class="field-row"><label for="wastagePercent">Wastage %</label><input id="wastagePercent" type="number" min="0" step="0.1" value="5" /></div>
+          <div class="field-row"><label for="profitPercent">Profit %</label><input id="profitPercent" type="number" min="0" step="0.1" value="20" /></div>
+        </div>
+
+        <div class="card">
+          <h2>Quantity</h2>
+          <div class="field-row">
+            <label for="quantity">No. of boxes</label>
+            <input id="quantity" type="number" min="1" step="1" value="250" />
+          </div>
+          <button id="calculateBtn">Calculate Price</button>
+          <p class="hint">Digital mode applies for 1–300 qty if sheet size fits in 12.5 × 18.5 in.</p>
+        </div>
+      </section>
+
+      <section class="result card" id="resultCard" hidden>
+        <h2>Pricing Result</h2>
+        <div id="result"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
